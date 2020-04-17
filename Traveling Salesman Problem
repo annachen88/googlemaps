@@ -1,0 +1,92 @@
+<?php
+set_time_limit(0);
+$graph = array(
+    array(0,2139,3096),
+    array(681,0,2277),
+    array(1251,1706,0)
+);
+
+//print_r($graph);
+//echo "<br><br>";
+
+$getadd = new SaleMan($graph, 0);
+$result = array();
+$vector = array();
+$value = $getadd->saleman();
+echo "<br>" . $value;
+
+class SaleMan
+{
+    public $_graph;
+    public $s;
+    public function __construct($graph_input, $s_input)
+    {
+        $this->_graph = $graph_input;
+        $this->s = $s_input;
+    }
+
+    public function saleman()
+    {
+        global $result;
+        global $vector;
+        $V = count($this->_graph);
+        
+        for ($i = 0; $i < $V; $i++) {
+            if ($i != $this->s) {
+                array_push($vector, $i);
+            }
+        }
+        //print_r($vector);
+        $min_path = PHP_INT_MAX;
+        permute($vector, 0, count($vector) - 1);
+        //print_r($result);
+        //echo "<br>";
+
+        for ($i = 0; $i < count($result); $i++) {
+            $current_path = 0;
+            $vector = array_replace($vector,$result[$i]);
+            //print_r($vector);
+
+            $tmp = $this->s;
+            for ($j = 0; $j < count($vector); $j++) {
+                $current_path += $this->_graph[$tmp][$vector[$j]];
+                $tmp = $vector[$j];
+            
+            }
+            $current_path += $this->_graph[$tmp][$this->s];
+            //echo "current_path: ".$current_path . "<br>";
+            $min_path = min($min_path, $current_path);
+            //echo "min_path: ".$min_path . "<br>";
+
+            if($current_path==$min_path){
+                $route = array();
+                $route = array_replace($route,$vector);
+            }
+
+        }
+        print_r($route);
+        return $min_path;
+    }
+}
+
+function permute($str, $l, $r)
+{
+    global $result;
+    if ($l == $r) {
+        array_push($result, $str);
+    } else {
+        for ($i = $l; $i <= $r; $i++) {
+            $str = swap($str, $l, $i);
+            permute($str, $l + 1, $r);
+            $str = swap($str, $l, $i);
+        }
+    }
+}
+
+function swap($a, $i, $j)
+{
+    $temp = $a[$i];
+    $a[$i] = $a[$j];
+    $a[$j] = $temp;
+    return $a;
+}
